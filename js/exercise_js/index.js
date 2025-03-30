@@ -94,6 +94,8 @@ import renderListNV, {classifyNV} from "./renderUI.js"
 import resetForm from "./resetForm.js"
 import removeVietnameseTones from "../../util/util.js"
 import { isEmpty } from "./validation.js"
+import searchXepLoai from "./search-xepLoai.js"
+import cleanCloseModal from "./cleanCloseModal.js"
 
 
 
@@ -115,84 +117,60 @@ document.getElementById("btnThemNV").onclick = function(){
 
     newNhanVien[id]= value
   }
-  console.log(newNhanVien)
 
   // 2. Validation 
-let valid 
+  let valid 
 
 
-let tbTKNV = document.getElementById("tbTKNV")
-let tbTen = document.getElementById("tbTen")
-let tbEmail = document.getElementById("tbEmail")
-let tbMatKhau = document.getAnimations("tbMatKhau")  
-let tbNgay = document.getElementById("tbNgay")
-let tbLuongCB = document.getElementById("tbLuongCB")
-let tbChucVu = document.getElementById("tbChucVu")
-let tbGiolam = document.getElementById("tbGiolam")
+  let tbTKNV = document.getElementById("tbTKNV")
+  let tbTen = document.getElementById("tbTen")
+  let tbEmail = document.getElementById("tbEmail")
+  let tbMatKhau = document.getElementById("tbMatKhau") 
+  let tbNgay = document.getElementById("tbNgay")
+  let tbLuongCB = document.getElementById("tbLuongCB")
+  let tbChucVu = document.getElementById("tbChucVu")
+  let tbGiolam = document.getElementById("tbGiolam")
 
-let empty = isEmpty(newNhanVien.tknv, tbTKNV, ERROR_MSG)
-& isEmpty(newNhanVien.name, tbTen, ERROR_MSG)
-& isEmpty(newNhanVien.email,tbEmail, ERROR_MSG)
-& isEmpty(newNhanVien.password,tbMatKhau, ERROR_MSG)
-& isEmpty(newNhanVien.datepicker,tbNgay, ERROR_MSG)
-& isEmpty(newNhanVien.luongCB,tbLuongCB, ERROR_MSG)
-& isEmpty(newNhanVien.chucvu,tbChucVu, ERROR_MSG)
-& isEmpty(newNhanVien.gioLam,tbGiolam, ERROR_MSG)
+  let empty = isEmpty(newNhanVien.tknv, tbTKNV, ERROR_MSG)
+  & isEmpty(newNhanVien.name, tbTen, ERROR_MSG)
+  & isEmpty(newNhanVien.email,tbEmail, ERROR_MSG)
+  & isEmpty(newNhanVien.password,tbMatKhau, ERROR_MSG)
+  & isEmpty(newNhanVien.datepicker,tbNgay, ERROR_MSG)
+  & isEmpty(newNhanVien.luongCB,tbLuongCB, ERROR_MSG)
+  & isEmpty(newNhanVien.chucvu,tbChucVu, ERROR_MSG)
+  & isEmpty(newNhanVien.gioLam,tbGiolam, ERROR_MSG)
 
-console.log(empty)
-valid = empty === 1? true : false
 
-if (!valid) return
+  console.log(empty)
+  valid = empty === 1? true : false
 
-if (valid) {
-  // 3. LocalStorage 
-  arrNhanVien.push(newNhanVien)
-  saveNVLocal(DATA_NAME_LOCAL, arrNhanVien)
+  if (!valid) return
 
-  // 4. Rendering nv data on table  
-  renderListNV(NHAN_VIEN, TRUONG_PHONG, SEP,arrNhanVien)
-  resetForm()
+  if (valid) {
+    // 3. LocalStorage 
+    arrNhanVien.push(newNhanVien)
+    saveNVLocal(DATA_NAME_LOCAL, arrNhanVien)
+
+    // 4. Rendering nv data on table  
+    renderListNV(NHAN_VIEN, TRUONG_PHONG, SEP,arrNhanVien)
+    resetForm()
+  }
 }
-
-
-
-
-
- 
-
-
-
-}
-
-const getIndexNV = function(eve, arr){
-  // if(!eve.target.classList.contains(btnClass)) return // Since we attach the event listener to the parent element => we need to make sure that the event handling will only happen when the user click on the child element which is the button has the class named "btn-xoa", otherwise it will be return
-  console.log(eve.target)
-
-  let element = eve.target.closest("tr") // Dom the closest parent element which is <tr></tr>
-
-  if (!element) return // Another logic check to make sure that the element exist
-
-  let id= element.id // RenderUI.js
-
-  let index = arr.findIndex(item => item.tknv == id)
-  // if (index == -1) return 
-
-  return index
-}
-
 
 
 // DETETING NV DATA eventlistener
 document.getElementById("tableDanhSach").addEventListener("click", function(event){
-  if(!event.target.classList.contains("btn-xoa")) return 
-  // let element= event.target.closest("tr") 
-  // if (!element) return 
-  // let elementID= element.id 
-  // let indexNv = arrNhanVien.findIndex(nv=> nv.tknv == elementID)
-  // if(indexNv == -1) return 
-  let indexNv = getIndexNV(event, arrNhanVien)
-  console.log(indexNv)
-  if(indexNv == -1) return
+  if(!event.target.classList.contains("btn-xoa")) return  // Since we attach the event listener to the parent element => we need to make sure that the event handling will only happen when the user click on the child element which is the button has the class named "btn-xoa", otherwise it will be return
+
+  let element= event.target.closest("tr") // Dom the closest parent element which is <tr></tr>
+
+  if (!element) return // Another logic check to make sure that the element exist
+
+  let elementID= element.id // RenderUI.js
+  
+  let indexNv = arrNhanVien.findIndex(nv=> nv.tknv == elementID)
+
+  if(indexNv == -1) return 
 
   arrNhanVien.splice(indexNv, 1) 
 
@@ -207,20 +185,15 @@ document.getElementById("tableDanhSach").addEventListener("click", function(even
 
 
 // UPDATING NV DATA eventlistener
-// Getting nv data and display on UI
+// Getting nv data from arrNV and display on UI
 document.getElementById("tableDanhSach").addEventListener("click", function(event){
   if(!event.target.classList.contains("btn-capNhat")) return
-  // let element = event.target.closest("tr")
-  // let elementID = element.id
-
-  // let indexNV = arrNhanVien.findIndex(nv => nv.tknv == elementID)
-  // if(indexNV == -1) return
-  let indexNV = getIndexNV(event, arrNhanVien )
-  console.log(indexNV)
-  if (indexNV == -1) return
+  let element = event.target.closest("tr")
+  let elementID = element.id
+  let indexNV = arrNhanVien.findIndex(nv => nv.tknv == elementID)
+  if(indexNV == -1) return
 
   let elementUpdate= arrNhanVien[indexNV]
-
 
   // document.getElementById("btnThem").click()
   // let modal = new bootstrap.Modal(document.getElementById("myModal"))
@@ -230,36 +203,22 @@ document.getElementById("tableDanhSach").addEventListener("click", function(even
   let arrFields = document.querySelectorAll("#form-modal input, #form-modal select")
   
   for (let field of arrFields ){
-    console.log(field)
     let {id} = field
-    console.log(id)
-    console.log(elementUpdate[id])
     field.value = elementUpdate[id]
 
     if(id === "tknv"){
       field.readOnly = true
     }
-
   }
 
 })
 
-
-// Updating nv data
+// Getting Modify data and update data
 document.getElementById("btnCapNhat").onclick = function(){
-  // let form = document.getElementById("form-modal")
-  // let formData= new FormData(form)
-  // console.log( Object.fromEntries(formData.entries()))
-  // let nhanVien = Object.fromEntries(formData)
-  // console.log(nhanVien)
-
-
-
   let arrFields = document.querySelectorAll("#form-modal input, #form-modal select")
 
   let updateNV = {}
   for( let field of arrFields){
-    console.log(field)
     let {id, value} = field
     updateNV[id] = value
 
@@ -267,11 +226,12 @@ document.getElementById("btnCapNhat").onclick = function(){
       field.readOnly = false
     }
   }
-  console.log(updateNV)
+
   let index= arrNhanVien.findIndex(nv => nv.tknv == updateNV.tknv)
-  arrNhanVien[index] =updateNV
+  arrNhanVien[index] = updateNV
 
   saveNVLocal(DATA_NAME_LOCAL, arrNhanVien)
+
   resetForm()
   $('#myModal').modal('hide');
   
@@ -281,19 +241,10 @@ document.getElementById("btnCapNhat").onclick = function(){
 
 
 // SEARCHING NV BASE ON CLASSIFICATION
-document.getElementById("btnTimNV").onclick= function(){
-  let search= document.getElementById("searchName").value
-  let dataSearch = removeVietnameseTones(search.toLowerCase())
+searchXepLoai(arrNhanVien, NHAN_VIEN, TRUONG_PHONG, SEP, classifyNV, removeVietnameseTones, renderListNV)
 
-  let sort= arrNhanVien.filter(nv =>{
-    let {gioLam} = nv
-    let xepLoai = classifyNV(gioLam)
-    let dataXepLoai= removeVietnameseTones(xepLoai.toLowerCase())
 
-    if (dataXepLoai == dataSearch){
-      return nv
-    }
-  })
 
-  renderListNV(NHAN_VIEN, TRUONG_PHONG, SEP, sort)
-}
+// CLOSE BUTTON
+// cleaning the form when the modern is close
+cleanCloseModal()
