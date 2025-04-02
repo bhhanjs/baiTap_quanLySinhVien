@@ -22,6 +22,9 @@
  * - Push the new objet into the arrayNv (already created in global)
  * 
  * 2. Validation 
+ * - Validating data in the new object nv => return true/ false
+ * - If false => return and show span alerts
+ * - If true => adding object into the arrayNV
  * 
  * 3. Local Storage
  * - Store the arrayNV into the localStorage
@@ -68,32 +71,24 @@
  */
 
 
-/** Validation
-+ Tài khoản tối đa 4 - 6 ký số, 
-+ Tên nhân viên phải là chữ, 
-+ Email phải đúng định dạng
-+ mật Khẩu từ 6-10 ký tự (chứa ít nhất 1 ký tự số, 1 ký tự in hoa, 1 ký tự đặc biệt), 
-+ Ngày làm không để trống, định dạng mm/dd/yyyy
-+ Lương cơ bản 1 000 000 - 20 000 000
-+ Chức vụ phải chọn chức vụ hợp lệ (Giám đốc, Trưởng Phòng, Nhân Viên)
-+ Số giờ làm trong tháng 80 - 200 giờ
- */
-
 /** VALIDATION
- * - prevent empty value
- * -
+ * - Create a flag variable to check boolean value true/ false 
+ * - Validating empty by & operator => change flag into true or false 
+ * - Validating each input by operator => change flag value into true or false again
+ * - Flag false => return
+ * - Flage true => keep processing
  * 
  */
 
 /////////////////////////////////////////////
 // VARIBALE & SUPPORT FUNCTION
-import {DATA_NAME_LOCAL, SEP, TRUONG_PHONG, NHAN_VIEN, ERROR_MSG} from "./data.js"
+import {DATA_NAME_LOCAL, SEP, TRUONG_PHONG, NHAN_VIEN, ERROR_MSG, REGEX_ACCOUNT, REGEX_EMAIL, REGEX_NAME, REGEX_PASSWORD, REGEX_DATE} from "./data.js"
 
 import { saveNVLocal, getNVLocal } from "./localstorage.js"
 import renderListNV, {classifyNV} from "./renderUI.js"
 import resetForm from "./resetForm.js"
 import removeVietnameseTones from "../../util/util.js"
-import { isEmpty } from "./validation.js"
+import { notEmpty, validInputs, rangeNumber, validPosition} from "./validation.js"
 import searchXepLoai from "./search-xepLoai.js"
 import cleanCloseModal from "./cleanCloseModal.js"
 
@@ -110,7 +105,6 @@ if (arrNhanVien.lenth !== 0){
 document.getElementById("btnThemNV").onclick = function(){
   // 1. Getting nv data from the form 
   let arrFiels = document.querySelectorAll("#form-modal input, #form-modal select")
-
   let newNhanVien= {}
   for (let field of arrFiels){
     let {id, value} = field
@@ -119,9 +113,6 @@ document.getElementById("btnThemNV").onclick = function(){
   }
 
   // 2. Validation 
-  let valid 
-
-
   let tbTKNV = document.getElementById("tbTKNV")
   let tbTen = document.getElementById("tbTen")
   let tbEmail = document.getElementById("tbEmail")
@@ -130,19 +121,39 @@ document.getElementById("btnThemNV").onclick = function(){
   let tbLuongCB = document.getElementById("tbLuongCB")
   let tbChucVu = document.getElementById("tbChucVu")
   let tbGiolam = document.getElementById("tbGiolam")
+  let valid // flag variable 
 
-  let empty = isEmpty(newNhanVien.tknv, tbTKNV, ERROR_MSG)
-  & isEmpty(newNhanVien.name, tbTen, ERROR_MSG)
-  & isEmpty(newNhanVien.email,tbEmail, ERROR_MSG)
-  & isEmpty(newNhanVien.password,tbMatKhau, ERROR_MSG)
-  & isEmpty(newNhanVien.datepicker,tbNgay, ERROR_MSG)
-  & isEmpty(newNhanVien.luongCB,tbLuongCB, ERROR_MSG)
-  & isEmpty(newNhanVien.chucvu,tbChucVu, ERROR_MSG)
-  & isEmpty(newNhanVien.gioLam,tbGiolam, ERROR_MSG)
-
-
+  // Validating empty
+  let empty = notEmpty(newNhanVien.tknv, tbTKNV, ERROR_MSG)
+  & notEmpty(newNhanVien.name, tbTen, ERROR_MSG)
+  & notEmpty(newNhanVien.email,tbEmail, ERROR_MSG)
+  & notEmpty(newNhanVien.password,tbMatKhau, ERROR_MSG)
+  & notEmpty(newNhanVien.datepicker,tbNgay, ERROR_MSG)
+  & notEmpty(newNhanVien.luongCB,tbLuongCB, ERROR_MSG)
+  & notEmpty(newNhanVien.chucvu,tbChucVu, ERROR_MSG)
+  & notEmpty(newNhanVien.gioLam,tbGiolam, ERROR_MSG)
   console.log(empty)
+
   valid = empty === 1? true : false
+
+ // Validating each input
+  const multiValids=  function(){
+    let valids = validInputs(newNhanVien.tknv, tbTKNV, "Tài khoản tối đa 4 - 6 ký số", REGEX_ACCOUNT) 
+    & validInputs(newNhanVien.name, tbTen, "Tên nhân viên phải là chữ", REGEX_NAME) 
+    & validInputs(newNhanVien.email,tbEmail, "Email phải đúng định dạng", REGEX_EMAIL) 
+    & validInputs(newNhanVien.password,tbMatKhau, "mật Khẩu từ 6-10 ký tự (chứa ít nhất 1 ký tự số, 1 ký tự in hoa, 1 ký tự đặc biệt)", REGEX_PASSWORD)
+    & validInputs(newNhanVien.datepicker,tbNgay, "định dạng mm/dd/yyyy",REGEX_DATE)
+    & rangeNumber(newNhanVien.luongCB, tbLuongCB, "Lương cơ bản 1 000 000 - 20 000 000", 1000000, 20000000)
+    & rangeNumber(newNhanVien.gioLam, tbGiolam, "Số giờ làm trong tháng 80 - 200 giờ",80, 200)
+    & validPosition(newNhanVien.chucvu,tbChucVu, "Chức vụ phải chọn chức vụ hợp lệ", removeVietnameseTones)
+
+    return valids === 1? true :false
+  }
+
+  valid = multiValids()
+  console.log(valid)
+
+ 
 
   if (!valid) return
 
