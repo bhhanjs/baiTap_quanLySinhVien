@@ -14,7 +14,10 @@ const cleanCloseModal = function(){
         span.classList.remove("displayBlock")
       }
     }
+
+    document.getElementById("btnThemNV").disabled = false;
   });
 } 
 
 export default cleanCloseModal
+

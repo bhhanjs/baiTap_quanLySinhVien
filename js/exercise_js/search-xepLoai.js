@@ -7,13 +7,14 @@ const searchXepLoai= function(arrNV, nhanVien, truongPhong, sep, classify, remov
       let {gioLam} = nv
       let xepLoai = classify(gioLam)
       let dataXepLoai= removeTones(xepLoai.toLowerCase())
-  
+
       if (dataXepLoai == dataSearch){
         return nv
       }
     })
   
     render(nhanVien, truongPhong, sep, sort)
+    document.getElementById("searchName").value = ""
   }
 }
 

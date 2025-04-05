@@ -53,7 +53,6 @@ const renderListNV = function(case1, case2, case3, arrNV){
   }).join("")
 
   return document.getElementById("tableDanhSach").innerHTML= content
-
 }
 
 export default renderListNV

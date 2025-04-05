@@ -108,7 +108,6 @@ document.getElementById("btnThemNV").onclick = function(){
   let newNhanVien= {}
   for (let field of arrFiels){
     let {id, value} = field
-
     newNhanVien[id]= value
   }
 
@@ -133,8 +132,8 @@ document.getElementById("btnThemNV").onclick = function(){
   & notEmpty(newNhanVien.chucvu,tbChucVu, ERROR_MSG)
   & notEmpty(newNhanVien.gioLam,tbGiolam, ERROR_MSG)
   console.log(empty)
-
   valid = empty === 1? true : false
+  if(!valid) return
 
  // Validating each input
   const multiValids=  function(){
@@ -146,17 +145,11 @@ document.getElementById("btnThemNV").onclick = function(){
     & rangeNumber(newNhanVien.luongCB, tbLuongCB, "Lương cơ bản 1 000 000 - 20 000 000", 1000000, 20000000)
     & rangeNumber(newNhanVien.gioLam, tbGiolam, "Số giờ làm trong tháng 80 - 200 giờ",80, 200)
     & validPosition(newNhanVien.chucvu,tbChucVu, "Chức vụ phải chọn chức vụ hợp lệ", removeVietnameseTones)
-
     return valids === 1? true :false
   }
-
   valid = multiValids()
-  console.log(valid)
-
- 
 
   if (!valid) return
-
   if (valid) {
     // 3. LocalStorage 
     arrNhanVien.push(newNhanVien)
@@ -180,9 +173,7 @@ document.getElementById("tableDanhSach").addEventListener("click", function(even
   let elementID= element.id // RenderUI.js
   
   let indexNv = arrNhanVien.findIndex(nv=> nv.tknv == elementID)
-
   if(indexNv == -1) return 
-
   arrNhanVien.splice(indexNv, 1) 
 
   saveNVLocal(DATA_NAME_LOCAL, arrNhanVien)
@@ -191,15 +182,12 @@ document.getElementById("tableDanhSach").addEventListener("click", function(even
 
 
 
-
-
-
-
 // UPDATING NV DATA eventlistener
 // Getting nv data from arrNV and display on UI
 document.getElementById("tableDanhSach").addEventListener("click", function(event){
   if(!event.target.classList.contains("btn-capNhat")) return
   let element = event.target.closest("tr")
+  if(!element) return
   let elementID = element.id
   let indexNV = arrNhanVien.findIndex(nv => nv.tknv == elementID)
   if(indexNV == -1) return
@@ -212,22 +200,20 @@ document.getElementById("tableDanhSach").addEventListener("click", function(even
   $('#myModal').modal('show');
 
   let arrFields = document.querySelectorAll("#form-modal input, #form-modal select")
-  
   for (let field of arrFields ){
     let {id} = field
     field.value = elementUpdate[id]
-
     if(id === "tknv"){
       field.readOnly = true
     }
   }
 
+  document.getElementById("btnThemNV").disabled = true;
 })
 
 // Getting Modify data and update data
 document.getElementById("btnCapNhat").onclick = function(){
   let arrFields = document.querySelectorAll("#form-modal input, #form-modal select")
-
   let updateNV = {}
   for( let field of arrFields){
     let {id, value} = field
@@ -237,23 +223,20 @@ document.getElementById("btnCapNhat").onclick = function(){
       field.readOnly = false
     }
   }
-
   let index= arrNhanVien.findIndex(nv => nv.tknv == updateNV.tknv)
+  if(index === -1) return
   arrNhanVien[index] = updateNV
 
   saveNVLocal(DATA_NAME_LOCAL, arrNhanVien)
-
   resetForm()
   $('#myModal').modal('hide');
-  
   renderListNV(NHAN_VIEN, TRUONG_PHONG, SEP, arrNhanVien)
-
+  document.getElementById("btnThemNV").disabled = false;
 }
 
 
 // SEARCHING NV BASE ON CLASSIFICATION
 searchXepLoai(arrNhanVien, NHAN_VIEN, TRUONG_PHONG, SEP, classifyNV, removeVietnameseTones, renderListNV)
-
 
 
 // CLOSE BUTTON
