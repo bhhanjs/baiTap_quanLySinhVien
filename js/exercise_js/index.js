@@ -49,7 +49,14 @@
  * - Dom to the form filled up value of the form by the updated nv object
  * - Prevent user modify TKNV by setting readOnly attribute = true
  * 
- * 2. 
+ * 2. Getting data of the form and update to localstorage 
+ * - Create an empty object
+ * - Getting data of the form => push into the object 
+ * - loop through the NV array look for the object have the same tknv => get the index
+ * - Replace the object by the update object 
+ * - Save to localstorage again
+ * - Close the modal
+ * - render the update NV arrayNV
  */
 
 
